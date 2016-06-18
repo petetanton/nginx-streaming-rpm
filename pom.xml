@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>nginx-streaming</groupId>
+    <artifactId>nginx-streaming</artifactId>
+    <version>0.0.1</version>
+    <name>Nginx Streaming RPM</name>
+    <url>http://maven.apache.org</url>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <build>
+        <finalName>nginx-streaming</finalName>
+        <plugins>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-compiler-plugin</artifactId>-->
+                <!--<version>3.1</version>-->
+                <!--<configuration>-->
+                    <!--<source>1.8</source>-->
+                    <!--<target>1.8</target>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>rpm-maven-plugin</artifactId>
+                <version>2.1.5</version>
+                <executions>
+                    <execution>
+                        <id>generate-rpm</id>
+                        <goals>
+                            <goal>rpm</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceEncoding>UTF-8</sourceEncoding>
+                    <license>internal</license>
+                    <distribution>Nginx Streaming RPM</distribution>
+                    <group>Application/WebApps</group>
+                    <targetVendor>tanton</targetVendor>
+                    <needarch>noarch</needarch>
+                    <targetOS>Linux</targetOS>
+
+                    <mappings>
+                        <mapping>
+                            <directory>/opt/nginx-build</directory>
+                            <filemode>440</filemode>
+                            <username>ec2-user</username>
+                            <groupname>ec2-user</groupname>
+                            <sources>
+                                <source>
+                                    <location>src/nginx/nginx-streaming.tar.gz</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                    </mappings>
+                    <preinstallScriptlet>
+                        <scriptFile>src/scripts/pre_install.sh</scriptFile>
+                        <fileEncoding>utf-8</fileEncoding>
+                    </preinstallScriptlet>
+                    <postinstallScriptlet>
+                        <scriptFile>src/scripts/post_install.sh</scriptFile>
+                        <fileEncoding>utf-8</fileEncoding>
+                    </postinstallScriptlet>
+                </configuration>
+            </plugin>
+
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>rpm-maven-plugin</artifactId>
+                    <version>2.1.5</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
