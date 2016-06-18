@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nginx-streaming</groupId>
     <artifactId>nginx-streaming</artifactId>
-    <version>0.0.6</version>
+    <version>0.0.7</version>
     <name>Nginx Streaming RPM</name>
     <url>http://maven.apache.org</url>
     <properties>
@@ -53,6 +53,9 @@
                                 <source>
                                     <location>src/nginx/nginx-streaming.tar.gz</location>
                                 </source>
+                                <source>
+                                    <location>src/scripts/nginx.sh</location>
+                                </source>
                             </sources>
                         </mapping>
                         <mapping>
@@ -75,6 +78,11 @@
                         <scriptFile>src/scripts/post_install.sh</scriptFile>
                         <fileEncoding>utf-8</fileEncoding>
                     </postinstallScriptlet>
+                    <requires>
+                        <require>gcc</require>
+                        <require>pcre-devel</require>
+                        <require>openssl-devel</require>
+                    </requires>
                 </configuration>
             </plugin>
 

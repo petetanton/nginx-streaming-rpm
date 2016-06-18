@@ -15,7 +15,7 @@ tar xf OpenSSL_1_0_1t.tar.gz
 wget http://nginx.org/download/nginx-1.9.9.tar.gz
 tar xf nginx-1.9.9.tar.gz
 cd nginx-1.9.9
-./configure --add-module=../nginx-rtmp-module --with-pcre=../pcre-8.38 --with-openssl=../openssl-OpenSSL_1_0_1t
+./configure --user=nginx --group=nginx --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --with-http_ssl_module --with-pcre --add-module=../nginx-rtmp-module
 make
 cd ..
 tar cf - nginx-1.9.9/ | gzip > nginx-streaming.tar.gz
