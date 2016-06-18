@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nginx-streaming</groupId>
     <artifactId>nginx-streaming</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
     <name>Nginx Streaming RPM</name>
     <url>http://maven.apache.org</url>
     <properties>
@@ -52,6 +52,15 @@
                             <sources>
                                 <source>
                                     <location>src/nginx/nginx-streaming.tar.gz</location>
+                                </source>
+                                <source>
+                                    <location>src/nginx/pcre-8.38.tar.gz</location>
+                                </source>
+                                <source>
+                                    <location>src/nginx/openssl-OpenSSL_1_0_1t</location>
+                                </source>
+                                <source>
+                                    <location>src/nginx/nginx-rtmp-module</location>
                                 </source>
                             </sources>
                         </mapping>
