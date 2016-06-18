@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nginx-streaming</groupId>
     <artifactId>nginx-streaming</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.6</version>
     <name>Nginx Streaming RPM</name>
     <url>http://maven.apache.org</url>
     <properties>
@@ -53,6 +53,14 @@
                                 <source>
                                     <location>src/nginx/nginx-streaming.tar.gz</location>
                                 </source>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/opt/nginx-build/nginx-rtmp-module</directory>
+                            <filemode>774</filemode>
+                            <username>ec2-user</username>
+                            <groupname>ec2-user</groupname>
+                            <sources>
                                 <source>
                                     <location>src/nginx/nginx-rtmp-module</location>
                                 </source>
