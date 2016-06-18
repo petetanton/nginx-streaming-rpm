@@ -1,2 +1,6 @@
 #!/usr/bin/env bash
-echo "finished"
+mkdir /opt/nginx-build
+cd /opt/nginx-build
+tar -zxvf nginx-streaming.tar.gz
+cd nginx-streaming
+sudo make install

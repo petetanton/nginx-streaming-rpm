@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nginx-streaming</groupId>
     <artifactId>nginx-streaming</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <name>Nginx Streaming RPM</name>
     <url>http://maven.apache.org</url>
     <properties>
