@@ -54,12 +54,6 @@
                                     <location>src/nginx/nginx-streaming.tar.gz</location>
                                 </source>
                                 <source>
-                                    <location>src/nginx/pcre-8.38.tar.gz</location>
-                                </source>
-                                <source>
-                                    <location>src/nginx/openssl-OpenSSL_1_0_1t</location>
-                                </source>
-                                <source>
                                     <location>src/nginx/nginx-rtmp-module</location>
                                 </source>
                             </sources>
