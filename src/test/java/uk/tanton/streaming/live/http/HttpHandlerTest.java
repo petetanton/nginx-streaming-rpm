@@ -8,16 +8,19 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.util.CharsetUtil;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import uk.tanton.streaming.live.StreamAuthenticator;
+import uk.tanton.streaming.live.StreamManager;
+import uk.tanton.streaming.live.streams.Stream;
 
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -33,47 +36,92 @@ public class HttpHandlerTest {
     @Mock private FullHttpRequest request;
     @Mock private ByteBuf requestContent;
     @Mock private HttpHeaders requestHeaders;
+    @Mock private StreamAuthenticator streamAuthenticator;
+    @Mock private StreamManager streamManager;
 
     @Before
     public void setUp() throws Exception {
-        this.underTest = new HttpHandler();
+        this.underTest = new HttpHandler(streamAuthenticator, streamManager);
         when(request.content()).thenReturn(requestContent);
         when(request.headers()).thenReturn(requestHeaders);
-
         when(request.getMethod()).thenReturn(HttpMethod.POST);
-        when(requestHeaders.get("Connection")).thenReturn(null);
+        when(requestHeaders.get(CONNECTION_ENTITY)).thenReturn(null);
+        when(streamAuthenticator.isAuthorised(any(Stream.class))).thenReturn(true);
     }
 
     @Test
-    public void itTriesToPublish() throws Exception {
-//        app=app&flashver=Wirecast/FM%201.0%20(compatible%3B%20MS&swfurl=&tcurl=rtmp://54.171.130.111:1935/app&pageurl=&addr=82.9.169.215&clientid=1&call=publish&name=wirecastTest&type=LIVE&user=123&password=2323
-
-        when(requestContent.toString(CharsetUtil.UTF_8)).thenReturn("something=blah&yo=yolo");
-        when(request.getUri()).thenReturn("/on_publish");
-
+    public void itIsAuthorisedOnPublishDone() throws Exception {
+        when(requestContent.toString(CharsetUtil.UTF_8)).thenReturn("app=testApp&name=testStream&user=testUser&password=testPassword");
+        when(request.getUri()).thenReturn("/on_publish_done");
 
         ArgumentCaptor<FullHttpResponse> responseCaptor = ArgumentCaptor.forClass(FullHttpResponse.class);
-
-        this.underTest.channelRead(ctx, request);
-    }
-
-    @Ignore
-    @Test
-    public void itIsHappy() throws Exception {
-        when(requestContent.toString()).thenReturn("{\"msg\": \"this is a test\"}");
-        ArgumentCaptor<FullHttpResponse> responseCaptor = ArgumentCaptor.forClass(FullHttpResponse.class);
+        ArgumentCaptor<Stream> streamCaptor = ArgumentCaptor.forClass(Stream.class);
 
         this.underTest.channelRead(ctx, request);
 
-        verify(request, times(2)).getMethod();
-        verify(request).content();
-        verify(requestContent).toString(StandardCharsets.UTF_8);
         verify(ctx).writeAndFlush(responseCaptor.capture());
-        verifyNoMoreInteractions(ctx, request, requestContent, requestHeaders);
+        verify(request, times(2)).getMethod();
+        verify(request, times(2)).getUri();
+        verify(request).content();
+        verify(requestContent).toString(CharsetUtil.UTF_8);
+        verify(streamAuthenticator).isAuthorised(streamCaptor.capture());
+        verify(streamManager).markStreamAsFinished(streamCaptor.getValue());
+
+        verifyNoMoreInteractions(ctx, request, requestContent, requestHeaders, streamAuthenticator, streamManager);
 
         final FullHttpResponse actual = responseCaptor.getValue();
+        assertEquals("stream ended", actual.content().toString(StandardCharsets.UTF_8));
         assertEquals(200, actual.getStatus().code());
-        assertEquals("Hello from FlyPi!", actual.content().toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void itIsAuthorisedOnPublish() throws Exception {
+        when(requestContent.toString(CharsetUtil.UTF_8)).thenReturn("app=testApp&name=testStream&user=testUser&password=testPassword");
+        when(request.getUri()).thenReturn("/on_publish");
+
+        ArgumentCaptor<FullHttpResponse> responseCaptor = ArgumentCaptor.forClass(FullHttpResponse.class);
+        ArgumentCaptor<Stream> streamCaptor = ArgumentCaptor.forClass(Stream.class);
+
+        this.underTest.channelRead(ctx, request);
+
+        verify(ctx).writeAndFlush(responseCaptor.capture());
+        verify(request, times(2)).getMethod();
+        verify(request, times(2)).getUri();
+        verify(request).content();
+        verify(requestContent).toString(CharsetUtil.UTF_8);
+        verify(streamAuthenticator).isAuthorised(streamCaptor.capture());
+        verify(streamManager).addStreamAndMarkAsStarted(streamCaptor.getValue());
+
+        verifyNoMoreInteractions(ctx, request, requestContent, requestHeaders, streamAuthenticator, streamManager);
+
+        final FullHttpResponse actual = responseCaptor.getValue();
+        assertEquals("stream started", actual.content().toString(StandardCharsets.UTF_8));
+        assertEquals(200, actual.getStatus().code());
+    }
+
+    @Test
+    public void itIsNotAuthorised() throws Exception {
+        when(requestContent.toString(CharsetUtil.UTF_8)).thenReturn("app=testApp&name=testStream&user=testUser&password=testPassword");
+        when(request.getUri()).thenReturn("/on_publish");
+        when(streamAuthenticator.isAuthorised(any(Stream.class))).thenReturn(false);
+
+        ArgumentCaptor<FullHttpResponse> responseCaptor = ArgumentCaptor.forClass(FullHttpResponse.class);
+        ArgumentCaptor<Stream> streamCaptor = ArgumentCaptor.forClass(Stream.class);
+
+        this.underTest.channelRead(ctx, request);
+
+        verify(ctx).writeAndFlush(responseCaptor.capture());
+        verify(request, times(2)).getMethod();
+        verify(request, times(1)).getUri();
+        verify(request).content();
+        verify(requestContent).toString(CharsetUtil.UTF_8);
+        verify(streamAuthenticator).isAuthorised(streamCaptor.capture());
+
+        verifyNoMoreInteractions(ctx, request, requestContent, requestHeaders, streamAuthenticator, streamManager);
+
+        final FullHttpResponse actual = responseCaptor.getValue();
+        assertEquals("stream not authorised", actual.content().toString(StandardCharsets.UTF_8));
+        assertEquals(403, actual.getStatus().code());
     }
 
     @Test
@@ -81,6 +129,31 @@ public class HttpHandlerTest {
         when(requestContent.toString(CharsetUtil.UTF_8)).thenReturn("app=testapp&name=streamName&user=userName&password=userPassword");
 
         itRejectsARequest(HttpMethod.POST, "/");
+    }
+
+    @Test
+    public void itRejectsGoodPathsWithBadParams() throws Exception {
+        when(requestContent.toString(CharsetUtil.UTF_8)).thenReturn("name=streamName&user=userName&password=userPassword");
+        when(request.getMethod()).thenReturn(HttpMethod.POST);
+        when(request.getUri()).thenReturn("/on_publish");
+
+
+        ArgumentCaptor<FullHttpResponse> responseCaptor = ArgumentCaptor.forClass(FullHttpResponse.class);
+
+        this.underTest.channelRead(ctx, request);
+
+        verify(request, times(2)).getMethod();
+        verify(request, times(1)).getUri();
+        verify(ctx).writeAndFlush(responseCaptor.capture());
+
+        final FullHttpResponse actual = responseCaptor.getValue();
+
+        verify(request).content();
+        verify(requestContent).toString(CharsetUtil.UTF_8);
+        assertEquals(400, actual.getStatus().code());
+        assertEquals("Missing parameter: app", actual.content().toString(StandardCharsets.UTF_8));
+
+        verifyNoMoreInteractions(ctx, request, requestContent, requestHeaders, streamAuthenticator, streamManager);
     }
 
     @Test
@@ -145,6 +218,7 @@ public class HttpHandlerTest {
         final FullHttpResponse actual = responseCaptor.getValue();
 
         if (method.equals(HttpMethod.POST)) {
+            verify(streamAuthenticator).isAuthorised(any(Stream.class));
             verify(request).content();
             verify(requestContent).toString(CharsetUtil.UTF_8);
             assertEquals(400, actual.getStatus().code());
@@ -154,7 +228,7 @@ public class HttpHandlerTest {
             assertEquals("", actual.content().toString(StandardCharsets.UTF_8));
         }
 
-        verifyNoMoreInteractions(ctx, request, requestContent, requestHeaders);
+        verifyNoMoreInteractions(ctx, request, requestContent, requestHeaders, streamAuthenticator, streamManager);
     }
 
 }

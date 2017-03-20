@@ -29,11 +29,15 @@ public class ParameterMap {
         }
     }
 
-    public static ParameterMap buildParamMapFromString(final String s) {
+    public static ParameterMap buildParamMapFromString(final String s) throws MissingParameterException {
         final ParameterMap parameterMap = new ParameterMap();
         final String[] split = s.split("&");
         for (String s1 : split) {
-            parameterMap.put(s1.split("=")[0], s1.split("=")[1]);
+            try {
+                parameterMap.put(s1.split("=")[0], s1.split("=")[1]);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                throw new MissingParameterException(String.format("Missing param: %s", s1));
+            }
         }
 
         return parameterMap;

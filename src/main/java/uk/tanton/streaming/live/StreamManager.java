@@ -14,8 +14,12 @@ public class StreamManager implements Runnable {
         this.streams = new ArrayList<>();
     }
 
-    public void addStream(final Stream stream) {
+    public void addStreamAndMarkAsStarted(final Stream stream) {
         this.streams.add(stream);
+    }
+
+    public void markStreamAsFinished(final Stream stream) {
+
     }
 
     @Override

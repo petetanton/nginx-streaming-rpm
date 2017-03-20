@@ -12,6 +12,8 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uk.tanton.streaming.live.StreamAuthenticator;
+import uk.tanton.streaming.live.StreamManager;
 import uk.tanton.streaming.live.streams.Stream;
 
 import java.util.Optional;
@@ -21,7 +23,12 @@ import static io.netty.buffer.Unpooled.copiedBuffer;
 public class HttpHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOG = LogManager.getLogger(HttpHandler.class);
 
-    public HttpHandler() {
+    private final StreamAuthenticator streamAuthenticator;
+    private final StreamManager streamManager;
+
+    public HttpHandler(final StreamAuthenticator streamAuthenticator, final StreamManager streamManager) {
+        this.streamAuthenticator = streamAuthenticator;
+        this.streamManager = streamManager;
     }
 
     @Override
@@ -48,19 +55,26 @@ public class HttpHandler extends ChannelInboundHandlerAdapter {
                 final Stream stream;
 
                 try {
-                     stream = parseStringIntoStream(requestMsg.get());
+                    stream = parseStringIntoStream(requestMsg.get());
                 } catch (final MissingParameterException e) {
                     LOG.info(e);
                     return buildDefaultResponse(HttpResponseStatus.BAD_REQUEST, e.getMessage());
                 }
 
+                if (!streamAuthenticator.isAuthorised(stream)) {
+                    return buildNotAuthorisedResponse();
+                }
+
+
                 switch (request.getUri()) {
                     case "/on_publish":
                         LOG.info("on_publish");
-                        return buildDefaultResponse(HttpResponseStatus.OK, "responseMessage");
+                        this.streamManager.addStreamAndMarkAsStarted(stream);
+                        return buildDefaultResponse(HttpResponseStatus.OK, "stream started");
                     case "/on_publish_done":
                         LOG.info("on_publish_done");
-                        return buildDefaultResponse(HttpResponseStatus.OK, "responseMessage");
+                        this.streamManager.markStreamAsFinished(stream);
+                        return buildDefaultResponse(HttpResponseStatus.OK, "stream ended");
                     default:
                         return buildDefaultResponse(HttpResponseStatus.BAD_REQUEST, "Unknown path");
 
@@ -98,6 +112,7 @@ public class HttpHandler extends ChannelInboundHandlerAdapter {
                     copiedBuffer(message.getBytes())
             );
             httpResponse.headers().add(HttpHeaders.Names.CONTENT_LENGTH, message.length());
+            httpResponse.headers().add(HttpHeaders.Names.CONTENT_TYPE, "text/plain");
         } else {
             httpResponse = new DefaultFullHttpResponse(
                     HttpVersion.HTTP_1_1,
@@ -107,6 +122,10 @@ public class HttpHandler extends ChannelInboundHandlerAdapter {
         }
 
         return httpResponse;
+    }
+
+    private FullHttpResponse buildNotAuthorisedResponse() {
+        return buildDefaultResponse(HttpResponseStatus.FORBIDDEN, "stream not authorised");
     }
 
     private Stream parseStringIntoStream(final String requestString) throws MissingParameterException {

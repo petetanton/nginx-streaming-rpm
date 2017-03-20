@@ -12,6 +12,8 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uk.tanton.streaming.live.StreamAuthenticator;
+import uk.tanton.streaming.live.StreamManager;
 
 public class HttpServer {
     private static final Logger LOG = LogManager.getLogger(HttpServer.class);
@@ -25,7 +27,7 @@ public class HttpServer {
         this.slaveGroup = new NioEventLoopGroup();
     }
 
-    public void start(final HttpHandler httpHandler) throws InterruptedException {
+    public void start() throws InterruptedException {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -41,7 +43,7 @@ public class HttpServer {
                     protected void initChannel(final SocketChannel sc) throws Exception {
                         sc.pipeline().addLast("codec", new HttpServerCodec());
                         sc.pipeline().addLast("agg", new HttpObjectAggregator(512*1024));
-                        sc.pipeline().addLast("request", new HttpHandler());
+                        sc.pipeline().addLast("request", new HttpHandler(new StreamAuthenticator(), new StreamManager()));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)
