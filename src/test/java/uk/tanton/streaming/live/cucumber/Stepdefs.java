@@ -36,7 +36,7 @@ public class Stepdefs {
     @Given("^A publish request is made for app \"([^\"]*)\" stream \"([^\"]*)\" user \"([^\"]*)\" password \"([^\"]*)\"$")
     public void A_publish_request_is_made_for_app_stream_user_password(String app, String stream, String user, String password) throws Throwable {
 
-        final HttpPost httpPost = new HttpPost("http://localhost:9000/on_publish");
+        final HttpPost httpPost = new HttpPost("http://localhost:8090/on_publish");
         final BasicHttpEntity entity = new BasicHttpEntity();
         entity.setContent(new StringInputStream(String.format("app=%s&name=%s&user=%s&password=%s", app, stream, user, password)));
         httpPost.setEntity(entity);

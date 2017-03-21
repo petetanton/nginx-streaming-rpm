@@ -49,7 +49,7 @@ public class HttpServer {
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
         try {
-            channel = bootstrap.bind(9000).sync();
+            channel = bootstrap.bind(8090).sync();
         } catch (InterruptedException e) {
             LOG.error("An exception occurred whilst trying to start the server", e);
             throw e;
