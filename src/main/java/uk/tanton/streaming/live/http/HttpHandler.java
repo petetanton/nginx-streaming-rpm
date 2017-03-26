@@ -10,6 +10,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.tanton.streaming.live.StreamAuthenticator;
@@ -50,7 +51,7 @@ public class HttpHandler extends ChannelInboundHandlerAdapter {
         if (request.getMethod().equals(HttpMethod.POST)) {
             final Optional<String> requestMsg = Optional.ofNullable(request.content().toString(CharsetUtil.UTF_8));
 
-            if (requestMsg.isPresent()) {
+            if (requestMsg.isPresent() && StringUtils.isNotEmpty(requestMsg.get())) {
 
                 final Stream stream;
 

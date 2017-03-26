@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.util.CharsetUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +21,7 @@ import uk.tanton.streaming.live.streams.Stream;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -129,6 +131,30 @@ public class HttpHandlerTest {
         when(requestContent.toString(CharsetUtil.UTF_8)).thenReturn("app=testapp&name=streamName&user=userName&password=userPassword");
 
         itRejectsARequest(HttpMethod.POST, "/");
+    }
+
+    @Test
+    public void itRejectsGoodPathsWithNoParams() throws Exception {
+        when(requestContent.toString(CharsetUtil.UTF_8)).thenReturn("");
+        when(request.getMethod()).thenReturn(HttpMethod.POST);
+        when(request.getUri()).thenReturn("/on_publish");
+
+        ArgumentCaptor<FullHttpResponse> responseCaptor = ArgumentCaptor.forClass(FullHttpResponse.class);
+
+        this.underTest.channelRead(ctx, request);
+
+        verify(request, times(2)).getMethod();
+        verify(request, times(1)).getUri();
+        verify(ctx).writeAndFlush(responseCaptor.capture());
+
+        final FullHttpResponse actual = responseCaptor.getValue();
+
+        verify(request).content();
+        verify(requestContent).toString(CharsetUtil.UTF_8);
+        assertEquals(405, actual.getStatus().code());
+        assertTrue(StringUtils.isEmpty(actual.content().toString(StandardCharsets.UTF_8)));
+
+        verifyNoMoreInteractions(ctx, request, requestContent, requestHeaders, streamAuthenticator, streamManager);
     }
 
     @Test
