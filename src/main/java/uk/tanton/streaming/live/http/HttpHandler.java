@@ -45,7 +45,7 @@ public class HttpHandler extends ChannelInboundHandlerAdapter {
     }
 
     private FullHttpResponse parseRequestAndCreateResponse(final FullHttpRequest request) {
-        LOG.debug(request.getMethod().name() + ": " + request.getUri());
+        LOG.info(request.getMethod().name() + ": " + request.getUri());
 
 
         if (request.getMethod().equals(HttpMethod.POST)) {

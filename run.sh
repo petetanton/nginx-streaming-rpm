@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+java -Duk.tanton.streaming.live.dynamo.publishersTable="live-streaming-system-Publishers-W7E9YS75J8K4" -Duk.tanton.streaming.live.dynamo.accountsTable="live-streaming-system-Accounts-1DFWU7XRPBPR8" -jar target/nginx-streaming-jar-with-dependencies.jar

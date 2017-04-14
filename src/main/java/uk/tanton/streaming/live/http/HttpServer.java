@@ -10,6 +10,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.tanton.streaming.live.StreamAuthenticator;
@@ -17,14 +18,18 @@ import uk.tanton.streaming.live.StreamManager;
 
 public class HttpServer {
     private static final Logger LOG = LogManager.getLogger(HttpServer.class);
-
-    private ChannelFuture channel;
     private final EventLoopGroup masterGroup;
     private final EventLoopGroup slaveGroup;
+    private final StreamAuthenticator streamAuthenticator;
+    private final StreamManager streamManager;
 
-    public HttpServer() {
+    private ChannelFuture channel;
+
+    public HttpServer(final StreamAuthenticator streamAuthenticator) {
+        this.streamAuthenticator = streamAuthenticator;
         this.masterGroup = new NioEventLoopGroup();
         this.slaveGroup = new NioEventLoopGroup();
+        this.streamManager = new StreamManager(HttpClientBuilder.create().build());
     }
 
     public void start() throws InterruptedException {
@@ -42,8 +47,8 @@ public class HttpServer {
                     @Override
                     protected void initChannel(final SocketChannel sc) throws Exception {
                         sc.pipeline().addLast("codec", new HttpServerCodec());
-                        sc.pipeline().addLast("agg", new HttpObjectAggregator(512*1024));
-                        sc.pipeline().addLast("request", new HttpHandler(new StreamAuthenticator(), new StreamManager()));
+                        sc.pipeline().addLast("agg", new HttpObjectAggregator(512 * 1024));
+                        sc.pipeline().addLast("request", new HttpHandler(streamAuthenticator, streamManager));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)
