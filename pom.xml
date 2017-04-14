@@ -202,10 +202,10 @@
                                     <location>target/nginx-streaming-jar-with-dependencies.jar</location>
                                 </source>
                                 <source>
-                                    <location>src/srcips/run-streaming-origin.sh</location>
+                                    <location>src/scripts/run-streaming-origin.sh</location>
                                 </source>
                                 <source>
-                                    <location>src/srcips/streaming-origin.service</location>
+                                    <location>src/scripts/streaming-origin.service</location>
                                 </source>
                             </sources>
                         </mapping>
