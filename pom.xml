@@ -209,6 +209,17 @@
                                 </source>
                             </sources>
                         </mapping>
+                        <mapping>
+                            <directory>/etc/systemd/system</directory>
+                            <filemode>774</filemode>
+                            <username>root</username>
+                            <groupname>root</groupname>
+                            <sources>
+                                <source>
+                                    <location>src/scripts/streaming-origin.service</location>
+                                </source>
+                            </sources>
+                        </mapping>
                     </mappings>
                     <preinstallScriptlet>
                         <scriptFile>src/scripts/pre_install.sh</scriptFile>
