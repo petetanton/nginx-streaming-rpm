@@ -51,7 +51,7 @@ public class AwsModules {
             final String userData1 = EC2MetadataUtils.getUserData();
             System.out.println(String.format("Userdata: %s", userData1));
             for (String s : userData1.split("\n")) {
-                userData.put(s.split(":")[0], s.split(":")[1]);
+                userData.put(s.split("=")[0], s.split("=")[1]);
             }
             return new DynamoTableConfig(userData.get("accountsTable"), userData.get("publishersTable"), userData.get("streamsTable"));
         }

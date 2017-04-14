@@ -1,7 +1,7 @@
 [Unit]
 Description=Streaming Origin working with Nginx
 [Service]
-ExecStart=/opt/streaming-origin/run-streming-origin.sh
+ExecStart=/opt/streaming-origin/run-streaming-origin.sh
 Type=simple
 User=centos
 [Install]
