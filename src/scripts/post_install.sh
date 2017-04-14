@@ -11,9 +11,11 @@ echo "Nginx installing..."
 make install
 echo "Modifying users..."
 useradd -d /etc/nginx/ -s /sbin/nologin nginx
-mv /opt/nginx-build/nginx.sh /etc/init.d/nginx
+cp /opt/nginx-build/nginx.sh /etc/init.d/nginx
 chmod +x /etc/init.d/nginx
 
 echo "Copying config"
-mv /opt/nginx-build/nginx.conf /etc/nginx/nginx.conf
+cp /opt/nginx-build/nginx.conf /etc/nginx/nginx.conf
 echo "Finishing up..."
+
+systemctl enable nginx

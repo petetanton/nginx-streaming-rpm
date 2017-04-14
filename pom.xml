@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nginx-streaming</groupId>
     <artifactId>nginx-streaming</artifactId>
-    <version>0.0.9</version>
+    <version>0.0.10</version>
     <name>Nginx Streaming RPM</name>
     <url>http://maven.apache.org</url>
     <properties>
@@ -167,8 +167,8 @@
                         <mapping>
                             <directory>/opt/nginx-build</directory>
                             <filemode>774</filemode>
-                            <username>ec2-user</username>
-                            <groupname>ec2-user</groupname>
+                            <username>centos</username>
+                            <groupname>centos</groupname>
                             <sources>
                                 <source>
                                     <location>src/nginx/nginx-streaming.tar.gz</location>
@@ -184,11 +184,28 @@
                         <mapping>
                             <directory>/opt/nginx-build/nginx-rtmp-module</directory>
                             <filemode>774</filemode>
-                            <username>ec2-user</username>
-                            <groupname>ec2-user</groupname>
+                            <username>centos</username>
+                            <groupname>centos</groupname>
                             <sources>
                                 <source>
                                     <location>src/nginx/nginx-rtmp-module</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/opt/streaming-origin</directory>
+                            <filemode>774</filemode>
+                            <username>centos</username>
+                            <groupname>centos</groupname>
+                            <sources>
+                                <source>
+                                    <location>target/nginx-streaming-jar-with-dependencies.jar</location>
+                                </source>
+                                <source>
+                                    <location>src/srcips/run-streaming-origin.sh</location>
+                                </source>
+                                <source>
+                                    <location>src/srcips/streaming-origin.service</location>
                                 </source>
                             </sources>
                         </mapping>
@@ -209,6 +226,7 @@
                         <require>gcc</require>
                         <require>pcre-devel</require>
                         <require>openssl-devel</require>
+                        <require>java-1.8.0-openjdk</require>
                     </requires>
                 </configuration>
             </plugin>
