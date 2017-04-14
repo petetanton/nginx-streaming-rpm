@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nginx-streaming</groupId>
     <artifactId>nginx-streaming</artifactId>
-    <version>0.0.10</version>
+    <version>0.0.11</version>
     <name>Nginx Streaming RPM</name>
     <url>http://maven.apache.org</url>
     <properties>
@@ -209,17 +209,17 @@
                                 </source>
                             </sources>
                         </mapping>
-                        <mapping>
-                            <directory>/etc/systemd/system</directory>
-                            <filemode>774</filemode>
-                            <username>root</username>
-                            <groupname>root</groupname>
-                            <sources>
-                                <source>
-                                    <location>src/scripts/streaming-origin.service</location>
-                                </source>
-                            </sources>
-                        </mapping>
+                        <!--<mapping>-->
+                            <!--<directory>/etc/systemd/system</directory>-->
+                            <!--<filemode>774</filemode>-->
+                            <!--<username>root</username>-->
+                            <!--<groupname>root</groupname>-->
+                            <!--<sources>-->
+                                <!--<source>-->
+                                    <!--<location>src/scripts/streaming-origin.service</location>-->
+                                <!--</source>-->
+                            <!--</sources>-->
+                        <!--</mapping>-->
                     </mappings>
                     <preinstallScriptlet>
                         <scriptFile>src/scripts/pre_install.sh</scriptFile>
