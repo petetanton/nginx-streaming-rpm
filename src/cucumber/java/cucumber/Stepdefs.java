@@ -1,4 +1,4 @@
-package uk.tanton.streaming.live.cucumber;
+package cucumber;
 
 import com.amazonaws.util.StringInputStream;
 import com.github.tomakehurst.wiremock.WireMockServer;
