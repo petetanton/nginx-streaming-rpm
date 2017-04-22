@@ -1,6 +1,7 @@
 package uk.tanton.streaming.live;
 
 import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.amazonaws.util.EC2MetadataUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -111,7 +112,7 @@ public class StreamManager {
                 final String transcodeJson = gson.toJson(transcodeRequest);
 
                 LOG.info(String.format("Sending message: %s", transcodeJson));
-//                this.sqs.sendMessage(new SendMessageRequest("queue", transcodeJson));
+                this.sqs.sendMessage(new SendMessageRequest(System.getProperty("uk.tanton.streaming.live.sqs.transcodeQueue"), transcodeJson));
             });
         }
 
