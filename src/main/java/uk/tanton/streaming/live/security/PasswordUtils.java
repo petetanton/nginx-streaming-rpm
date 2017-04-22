@@ -1,11 +1,15 @@
 package uk.tanton.streaming.live.security;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 public class PasswordUtils {
+    private static final Logger LOG = LogManager.getLogger(PasswordUtils.class);
 
     public static String encryptPassword(final String user, final String password, final String salt) {
 
@@ -20,11 +24,10 @@ public class PasswordUtils {
             }
             generatedPassword = sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            LOG.error(e);
         }
         return generatedPassword;
     }
-
 
     public static String getSalt() throws NoSuchAlgorithmException {
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");

@@ -93,7 +93,7 @@ public class StreamManager {
 
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOG.error("An error occurred whilst trying to get the manifest", e);
                 }
             });
 
