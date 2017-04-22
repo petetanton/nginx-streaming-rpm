@@ -69,4 +69,14 @@ public class StreamAuthenticatorTest {
         verifyNoMoreInteractions(streamDataConnector);
     }
 
+    @Test
+    public void isCreatesAUser() throws NoSuchAlgorithmException {
+        final String salt = PasswordUtils.getSalt();
+        final String encryptPassword = PasswordUtils.encryptPassword("user", "password", salt);
+
+
+        System.out.println(String.format("Salt: %s", salt));
+        System.out.println(String.format("Encrypted password: %s", encryptPassword));
+    }
+
 }

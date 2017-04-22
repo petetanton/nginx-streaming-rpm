@@ -29,17 +29,48 @@ public class ParameterMap {
         }
     }
 
+    public String getNullable(final String key) {
+        try {
+            return get(key);
+        } catch (MissingParameterException ignored) {
+            return "";
+        }
+    }
+
     public static ParameterMap buildParamMapFromString(final String s) throws MissingParameterException {
         final ParameterMap parameterMap = new ParameterMap();
         final String[] split = s.split("&");
         for (String s1 : split) {
             try {
-                parameterMap.put(s1.split("=")[0], s1.split("=")[1]);
+                parameterMap.put(s1.split("=")[0], getIndexOrEmptyString(s1, "=", 1));
             } catch (ArrayIndexOutOfBoundsException e) {
                 throw new MissingParameterException(String.format("Missing param: %s", s1));
             }
         }
 
         return parameterMap;
+    }
+
+    public static String getIndexOrEmptyString(final String s, final String regex, final int index) {
+        try {
+            return s.split(regex)[index];
+        } catch (ArrayIndexOutOfBoundsException ignored) {
+            return "";
+        }
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        params.entrySet().forEach(entry -> {
+            sb
+                    .append("{key: ")
+                    .append(entry.getKey())
+                    .append(", value: ")
+                    .append(entry.getValue())
+                    .append("}\n");
+        });
+
+        return sb.toString();
     }
 }

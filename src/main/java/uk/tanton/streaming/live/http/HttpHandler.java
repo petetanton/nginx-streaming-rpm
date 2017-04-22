@@ -45,8 +45,13 @@ public class HttpHandler extends ChannelInboundHandlerAdapter {
     }
 
     private FullHttpResponse parseRequestAndCreateResponse(final FullHttpRequest request) {
-        LOG.info(request.getMethod().name() + ": " + request.getUri());
+        final String path = request.getUri();
+        LOG.info(request.getMethod().name() + ": " + path);
 
+
+//        request.headers().forEach(h -> {
+//            LOG.info(String.format("\tHeader: {key: %s, value: %s}", h.getKey(), h.getValue()));
+//        });
 
         if (request.getMethod().equals(HttpMethod.POST)) {
             final Optional<String> requestMsg = Optional.ofNullable(request.content().toString(CharsetUtil.UTF_8));
@@ -56,7 +61,14 @@ public class HttpHandler extends ChannelInboundHandlerAdapter {
                 final Stream stream;
 
                 try {
-                    stream = parseStringIntoStream(requestMsg.get());
+                    final String requestString = requestMsg.get().replace("%26", "&");
+                    LOG.info(String.format("Request string: %s", requestString));
+                    final ParameterMap parameterMap = ParameterMap.buildParamMapFromString(requestString);
+
+                    if (isForwardedConnection(parameterMap)) {
+                        return buildDefaultResponse(HttpResponseStatus.OK, "OK");
+                    }
+                    stream = parseStringIntoStream(parameterMap);
                 } catch (final MissingParameterException e) {
                     LOG.info(e);
                     return buildDefaultResponse(HttpResponseStatus.BAD_REQUEST, e.getMessage());
@@ -67,7 +79,7 @@ public class HttpHandler extends ChannelInboundHandlerAdapter {
                 }
 
 
-                switch (request.getUri()) {
+                switch (path) {
                     case "/on_publish":
                         LOG.info("on_publish");
                         this.streamManager.addStreamAndMarkAsStarted(stream);
@@ -76,7 +88,11 @@ public class HttpHandler extends ChannelInboundHandlerAdapter {
                         LOG.info("on_publish_done");
                         this.streamManager.markStreamAsFinished(stream);
                         return buildDefaultResponse(HttpResponseStatus.OK, "stream ended");
+                    case "/on_connect":
+                        LOG.info("on_connect");
+                        return buildDefaultResponse(HttpResponseStatus.OK, "connected");
                     default:
+                        LOG.error(String.format("Unknown request type: %s", path));
                         return buildDefaultResponse(HttpResponseStatus.BAD_REQUEST, "Unknown path");
 
                 }
@@ -129,10 +145,21 @@ public class HttpHandler extends ChannelInboundHandlerAdapter {
         return buildDefaultResponse(HttpResponseStatus.FORBIDDEN, "stream not authorised");
     }
 
-    private Stream parseStringIntoStream(final String requestString) throws MissingParameterException {
-        final ParameterMap parameterMap = ParameterMap.buildParamMapFromString(requestString);
+    private Stream parseStringIntoStream(final ParameterMap parameterMap) throws MissingParameterException {
 
         return new Stream(parameterMap.get("app"), parameterMap.get("name"), parameterMap.get("user"), parameterMap.get("password"));
+    }
+
+    private boolean isForwardedConnection(final ParameterMap pm) {
+//        LOG.info(String.format("pm: %s", pm.toString()));
+        if (pm.getNullable("call").equalsIgnoreCase("connect")) {
+            final String app = pm.getNullable("app");
+            if (app.equalsIgnoreCase("dash-live") || app.equalsIgnoreCase("hls-live")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

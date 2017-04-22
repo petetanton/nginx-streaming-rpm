@@ -5,6 +5,8 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsync;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.util.EC2MetadataUtils;
 import com.amazonaws.util.StringUtils;
 import dagger.Module;
@@ -35,6 +37,16 @@ public class AwsModules {
     @Named("streamDataConnector")
     public StreamDataConnector provideStreamDataConnector(@Named("dynamo") AmazonDynamoDBAsync dynamo) {
         return new StreamDataConnector(new DynamoDBMapper(dynamo), getDynamoTableConfig());
+    }
+
+    @Provides
+    @Singleton
+    @Named("sqs")
+    public AmazonSQS provideSQSClient() {
+        return AmazonSQSClientBuilder.standard()
+                .withRegion(Regions.EU_WEST_1)
+                .withCredentials(new ProfileCredentialsProvider("pete-work"))
+                .build();
     }
 
 

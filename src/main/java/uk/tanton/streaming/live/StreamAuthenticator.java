@@ -29,12 +29,16 @@ public class StreamAuthenticator {
 
         final String passwordHashAttempt = PasswordUtils.encryptPassword(stream.getUser(), stream.getPassword(), publisher.getPasswordSalt());
         if (passwordHashAttempt.equals(publisher.getPasswordHash())) {
-            LOG.info("%s authenticated", stream.getUser());
+            LOG.info(String.format("%s authenticated", stream.getUser()));
             return true;
         }
 
-        LOG.error(String.format("%s inccorect password attempt", stream.getUser()));
+        LOG.error(String.format("%s incorrect password attempt", stream.getUser()));
 
         return false;
+    }
+
+    public String getAccountForStream(final Stream stream) {
+        return streamDataConnector.getPublisher(stream.getUser()).getAccountId();
     }
 }

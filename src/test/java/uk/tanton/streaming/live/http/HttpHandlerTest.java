@@ -63,7 +63,7 @@ public class HttpHandlerTest {
 
         verify(ctx).writeAndFlush(responseCaptor.capture());
         verify(request, times(2)).getMethod();
-        verify(request, times(2)).getUri();
+        verify(request).getUri();
         verify(request).content();
         verify(requestContent).toString(CharsetUtil.UTF_8);
         verify(streamAuthenticator).isAuthorised(streamCaptor.capture());
@@ -88,7 +88,7 @@ public class HttpHandlerTest {
 
         verify(ctx).writeAndFlush(responseCaptor.capture());
         verify(request, times(2)).getMethod();
-        verify(request, times(2)).getUri();
+        verify(request).getUri();
         verify(request).content();
         verify(requestContent).toString(CharsetUtil.UTF_8);
         verify(streamAuthenticator).isAuthorised(streamCaptor.capture());
@@ -227,18 +227,16 @@ public class HttpHandlerTest {
     }
 
     private void itRejectsARequest(final HttpMethod method, final String uri) throws Exception {
-        int noOfTimesToGetUri = 1;
         when(request.getMethod()).thenReturn(method);
         if (uri != null) {
             when(request.getUri()).thenReturn(uri);
-            noOfTimesToGetUri++;
         }
         ArgumentCaptor<FullHttpResponse> responseCaptor = ArgumentCaptor.forClass(FullHttpResponse.class);
 
         this.underTest.channelRead(ctx, request);
 
         verify(request, times(2)).getMethod();
-        verify(request, times(noOfTimesToGetUri)).getUri();
+        verify(request).getUri();
         verify(ctx).writeAndFlush(responseCaptor.capture());
 
         final FullHttpResponse actual = responseCaptor.getValue();

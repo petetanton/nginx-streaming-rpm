@@ -10,7 +10,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.tanton.streaming.live.StreamAuthenticator;
@@ -25,11 +24,11 @@ public class HttpServer {
 
     private ChannelFuture channel;
 
-    public HttpServer(final StreamAuthenticator streamAuthenticator) {
+    public HttpServer(final StreamAuthenticator streamAuthenticator, final StreamManager streamManager) {
         this.streamAuthenticator = streamAuthenticator;
         this.masterGroup = new NioEventLoopGroup();
         this.slaveGroup = new NioEventLoopGroup();
-        this.streamManager = new StreamManager(HttpClientBuilder.create().build());
+        this.streamManager = streamManager;
     }
 
     public void start() throws InterruptedException {
