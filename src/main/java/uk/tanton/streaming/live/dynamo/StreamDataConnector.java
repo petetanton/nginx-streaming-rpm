@@ -25,8 +25,8 @@ public class StreamDataConnector {
         this.mapper = dynamoMapper;
         this.config = config;
         this.publisherLoadingCache = CacheBuilder.newBuilder()
-                .maximumSize(5)
-                .refreshAfterWrite(1, TimeUnit.MINUTES)
+                .maximumSize(10)
+                .expireAfterWrite(1, TimeUnit.MINUTES)
                 .build(new CacheLoader<String, Publisher>() {
                     @Override
                     public Publisher load(String s) throws Exception {
