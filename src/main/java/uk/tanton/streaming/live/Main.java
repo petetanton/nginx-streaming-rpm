@@ -1,6 +1,8 @@
 package uk.tanton.streaming.live;
 
 import dagger.Component;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import uk.tanton.streaming.live.http.HttpServer;
 import uk.tanton.streaming.live.modules.AwsModules;
 import uk.tanton.streaming.live.modules.HttpModule;
@@ -16,6 +18,8 @@ interface MainExecComponent {
 }
 
 public class Main {
+    private static final Logger LOG = LogManager.getLogger(Main.class);
+
     private final HttpServer httpServer;
 
     @Inject
@@ -31,7 +35,7 @@ public class Main {
                     .httpModule(new HttpModule())
                     .build();
         } catch (Exception ex) {
-            System.err.println(ex.getMessage());
+            LOG.error(ex);
             System.exit(2);
             throw new AssertionError("unreachable");
         }
@@ -40,7 +44,7 @@ public class Main {
         main.start();
     }
 
-    void start() throws Exception {
+    void start() throws InterruptedException {
         httpServer.start();
     }
 

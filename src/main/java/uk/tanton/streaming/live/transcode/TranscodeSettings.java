@@ -34,7 +34,6 @@ public class TranscodeSettings {
 
         set.add(new TranscodeSettings("240p", "350000", AUDIO_LOW, BASELINE, 240, 432));
         set.add(new TranscodeSettings("360p", "700000", AUDIO_MEDIUM, MAIN, 360, 640));
-
         set.add(new TranscodeSettings("480p", "1200000", AUDIO_HIGH, MAIN, 480, 854));
         set.add(new TranscodeSettings("720p", "2500000", AUDIO_HIGH, HIGH, 720, 1280));
         set.add(new TranscodeSettings("1080p", "5000000", AUDIO_HIGH, HIGH, 1080, 1920));

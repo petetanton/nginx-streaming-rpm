@@ -23,4 +23,13 @@ public class DynamoTableConfig {
     public String getStreamsTable() {
         return streamsTable;
     }
+
+    @Override
+    public String toString() {
+        return "DynamoTableConfig{" +
+                "accountsTable='" + accountsTable + '\'' +
+                ", publishersTable='" + publishersTable + '\'' +
+                ", streamsTable='" + streamsTable + '\'' +
+                '}';
+    }
 }

@@ -13,7 +13,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.tanton.streaming.live.StreamAuthenticator;
-import uk.tanton.streaming.live.StreamManager;
+import uk.tanton.streaming.live.managment.StreamManager;
 
 public class HttpServer {
     private static final Logger LOG = LogManager.getLogger(HttpServer.class);

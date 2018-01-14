@@ -11,6 +11,8 @@ import com.amazonaws.util.EC2MetadataUtils;
 import com.amazonaws.util.StringUtils;
 import dagger.Module;
 import dagger.Provides;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import uk.tanton.streaming.live.dynamo.DynamoTableConfig;
 import uk.tanton.streaming.live.dynamo.StreamDataConnector;
 
@@ -21,6 +23,10 @@ import java.util.Map;
 
 @Module
 public class AwsModules {
+    private static final Logger LOG = LogManager.getLogger(AwsModules.class);
+    private static final String ACCOUNTS_TABLE = "uk.tanton.streaming.live.dynamo.accountsTable";
+    private static final String PUBLISHERS_TABLE = "uk.tanton.streaming.live.dynamo.publishersTable";
+    private static final String STREAM_TABLE = "uk.tanton.streaming.live.dynamo.streamTable";
 
     @Provides
     @Singleton
@@ -51,21 +57,24 @@ public class AwsModules {
 
 
     private DynamoTableConfig getDynamoTableConfig() {
-        System.out.println("accounts prop: " + System.getProperty("uk.tanton.streaming.live.dynamo.accountsTable"));
-        if (!StringUtils.isNullOrEmpty(System.getProperty("uk.tanton.streaming.live.dynamo.accountsTable"))) {
-            return new DynamoTableConfig(
-                    System.getProperty("uk.tanton.streaming.live.dynamo.accountsTable"),
-                    System.getProperty("uk.tanton.streaming.live.dynamo.publishersTable"),
-                    System.getProperty("uk.tanton.streaming.live.dynamo.streamTable")
+        DynamoTableConfig dynamoTableConfig;
+        if (!StringUtils.isNullOrEmpty(System.getProperty(ACCOUNTS_TABLE))) {
+            dynamoTableConfig = new DynamoTableConfig(
+                    System.getProperty(ACCOUNTS_TABLE),
+                    System.getProperty(PUBLISHERS_TABLE),
+                    System.getProperty(STREAM_TABLE)
             );
         } else {
             Map<String, String> userData = new HashMap<>();
             final String userData1 = EC2MetadataUtils.getUserData();
-            System.out.println(String.format("Userdata: %s", userData1));
+            LOG.info(String.format("Userdata: %s", userData1));
             for (String s : userData1.split("\n")) {
                 userData.put(s.split("=")[0], s.split("=")[1]);
             }
-            return new DynamoTableConfig(userData.get("accountsTable"), userData.get("publishersTable"), userData.get("streamsTable"));
+            dynamoTableConfig = new DynamoTableConfig(userData.get("accountsTable"), userData.get("publishersTable"), userData.get("streamsTable"));
         }
+
+        LOG.info(String.format("Loading tables: %s", dynamoTableConfig.toString()));
+        return dynamoTableConfig;
     }
 }

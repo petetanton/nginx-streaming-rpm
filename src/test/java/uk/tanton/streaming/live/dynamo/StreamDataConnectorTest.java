@@ -9,6 +9,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.tanton.streaming.live.dynamo.domain.Publisher;
+import uk.tanton.streaming.live.exception.NoSuchPublisherException;
 
 import java.util.Date;
 
@@ -32,8 +33,8 @@ public class StreamDataConnectorTest {
     }
 
     @Test
-    public void it() {
-        final Publisher expectedPublisher = new Publisher("accountId", "passwordHash", "passwordSalt", "username", new Date(), new Date());
+    public void it() throws NoSuchPublisherException {
+        final Publisher expectedPublisher = new Publisher(1, "passwordHash", "passwordSalt", "username", new Date(), new Date());
         when(mapper.load(eq(Publisher.class), eq("username"), anyObject())).thenReturn(expectedPublisher);
 //        when(mapper.getItem(getItemRequestArgumentCaptor.capture())).thenReturn(null);
 

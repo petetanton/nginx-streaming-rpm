@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.tanton.streaming.live.dynamo.StreamDataConnector;
 import uk.tanton.streaming.live.dynamo.domain.Publisher;
+import uk.tanton.streaming.live.exception.NoSuchPublisherException;
 import uk.tanton.streaming.live.security.PasswordUtils;
 import uk.tanton.streaming.live.streams.Stream;
 
@@ -29,17 +30,18 @@ public class StreamAuthenticatorTest {
     @Mock private StreamDataConnector streamDataConnector;
 
     @Before
-    public void setup() throws NoSuchAlgorithmException {
+    public void setup() throws NoSuchAlgorithmException, NoSuchPublisherException {
         underTest = new StreamAuthenticator(streamDataConnector);
 
 
         final String salt = PasswordUtils.getSalt();
         final String passwordHash = PasswordUtils.encryptPassword("username", "some-password!", salt);
-        when(streamDataConnector.getPublisher("username")).thenReturn(new Publisher("accountId", passwordHash, salt, "username", new Date(Instant.now().minusSeconds(60).toEpochMilli()), new Date(Instant.now().plusSeconds(60).toEpochMilli())));
+        when(streamDataConnector.getPublisher("username")).thenReturn(new Publisher(1, passwordHash, salt, "username", new Date(Instant.now().minusSeconds(60).toEpochMilli()), new Date(Instant.now().plusSeconds(60).toEpochMilli())));
+        when(streamDataConnector.getPublisher("some-user-name")).thenThrow(new NoSuchPublisherException("some-user-name"));
     }
 
     @Test
-    public void itAuthorisesCorrectPassword() {
+    public void itAuthorisesCorrectPassword() throws NoSuchPublisherException {
         final boolean authorised = underTest.isAuthorised(new Stream("app", "name", "username", "some-password!"));
 
         assertTrue(authorised);
@@ -48,7 +50,7 @@ public class StreamAuthenticatorTest {
     }
 
     @Test
-    public void itDoesNotAuthoriseIncorrectPasswords() {
+    public void itDoesNotAuthoriseIncorrectPasswords() throws NoSuchPublisherException {
         final boolean authorised = underTest.isAuthorised(new Stream("app", "name", "username", "balh-password"));
 
         assertFalse(authorised);
@@ -57,7 +59,7 @@ public class StreamAuthenticatorTest {
     }
 
     @Test
-    public void itReturnsFalseIfPublisherDoesNotExist() {
+    public void itReturnsFalseIfPublisherDoesNotExist() throws NoSuchPublisherException {
         final boolean authorised = underTest.isAuthorised(new Stream("app", "name", "some-user-name", "some-password!"));
 
         assertFalse(authorised);

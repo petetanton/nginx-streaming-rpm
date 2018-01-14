@@ -10,7 +10,20 @@ import java.util.Date;
 
 @DynamoDBTable(tableName = "OVERWRITTEN-BY-CONFIG")
 public class Publisher {
-    public Publisher(String accountId, String passwordHash, String passwordSalt, String username, Date validFrom, Date validTo) {
+    @DynamoDBHashKey
+    private String username;
+    @DynamoDBAttribute
+    private int accountId;
+    @DynamoDBAttribute
+    private String passwordHash;
+    @DynamoDBAttribute
+    private String passwordSalt;
+    @DynamoDBAttribute
+    private Date validFrom;
+    @DynamoDBAttribute
+    private Date validTo;
+
+    public Publisher(int accountId, String passwordHash, String passwordSalt, String username, Date validFrom, Date validTo) {
         this.accountId = accountId;
         this.passwordHash = passwordHash;
         this.passwordSalt = passwordSalt;
@@ -20,31 +33,14 @@ public class Publisher {
     }
 
     public Publisher() {
+//        Empty constructor required for dynamo mapper
     }
 
-    @DynamoDBHashKey
-    private String username;
-
-    @DynamoDBAttribute
-    private String accountId;
-
-    @DynamoDBAttribute
-    private String passwordHash;
-
-    @DynamoDBAttribute
-    private String passwordSalt;
-
-    @DynamoDBAttribute
-    private Date validFrom;
-
-    @DynamoDBAttribute
-    private Date validTo;
-
-    public String getAccountId() {
+    public int getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(String accountId) {
+    public void setAccountId(int accountId) {
         this.accountId = accountId;
     }
 

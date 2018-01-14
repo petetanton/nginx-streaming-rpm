@@ -23,7 +23,7 @@ public class PasswordUtils {
                 sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
             }
             generatedPassword = sb.toString();
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Exception e) {
             LOG.error(e);
         }
         return generatedPassword;
@@ -36,8 +36,12 @@ public class PasswordUtils {
         return toBase64(salt);
     }
 
-    private static byte[] fromBase64(String hex) throws IllegalArgumentException {
-        return DatatypeConverter.parseBase64Binary(hex);
+    private static byte[] fromBase64(String hex) throws PasswordException {
+        try {
+            return DatatypeConverter.parseBase64Binary(hex);
+        } catch (IllegalArgumentException e) {
+            throw new PasswordException("Error converting from base 64", e);
+        }
     }
 
     private static String toBase64(byte[] array) {

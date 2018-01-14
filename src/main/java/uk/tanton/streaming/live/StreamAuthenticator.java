@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.tanton.streaming.live.dynamo.StreamDataConnector;
 import uk.tanton.streaming.live.dynamo.domain.Publisher;
+import uk.tanton.streaming.live.exception.NoSuchPublisherException;
 import uk.tanton.streaming.live.security.PasswordUtils;
 import uk.tanton.streaming.live.streams.Stream;
 
@@ -20,10 +21,10 @@ public class StreamAuthenticator {
     }
 
     public boolean isAuthorised(final Stream stream) {
-        final Publisher publisher = streamDataConnector.getPublisher(stream.getUser());
-
-        if (publisher == null) {
-            LOG.error(String.format("%s user does not exist in publisher table", stream.getUser()));
+        final Publisher publisher;
+        try {
+            publisher = streamDataConnector.getPublisher(stream.getUser());
+        } catch (NoSuchPublisherException e) {
             return false;
         }
 
@@ -38,7 +39,7 @@ public class StreamAuthenticator {
         return false;
     }
 
-    public String getAccountForStream(final Stream stream) {
+    public int getAccountForStream(Stream stream) throws NoSuchPublisherException {
         return streamDataConnector.getPublisher(stream.getUser()).getAccountId();
     }
 }

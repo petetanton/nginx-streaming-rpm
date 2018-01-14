@@ -7,7 +7,6 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.util.CharsetUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,13 +14,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.tanton.streaming.live.StreamAuthenticator;
-import uk.tanton.streaming.live.StreamManager;
+import uk.tanton.streaming.live.managment.StreamManager;
 import uk.tanton.streaming.live.streams.Stream;
 
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -151,8 +149,8 @@ public class HttpHandlerTest {
 
         verify(request).content();
         verify(requestContent).toString(CharsetUtil.UTF_8);
-        assertEquals(405, actual.getStatus().code());
-        assertTrue(StringUtils.isEmpty(actual.content().toString(StandardCharsets.UTF_8)));
+        assertEquals(400, actual.getStatus().code());
+        assertEquals("No request body was sent", actual.content().toString(StandardCharsets.UTF_8));
 
         verifyNoMoreInteractions(ctx, request, requestContent, requestHeaders, streamAuthenticator, streamManager);
     }
@@ -180,6 +178,52 @@ public class HttpHandlerTest {
         assertEquals("Missing parameter: app", actual.content().toString(StandardCharsets.UTF_8));
 
         verifyNoMoreInteractions(ctx, request, requestContent, requestHeaders, streamAuthenticator, streamManager);
+    }
+
+    @Test
+    public void itAllowsPublishRequestsThatAreForwardedForHLSLive() throws Exception {
+        when(requestContent.toString(CharsetUtil.UTF_8)).thenReturn("call=connect&app=hls-live");
+
+        when(request.getUri()).thenReturn("/on_publish");
+
+        ArgumentCaptor<FullHttpResponse> responseCaptor = ArgumentCaptor.forClass(FullHttpResponse.class);
+
+        this.underTest.channelRead(ctx, request);
+
+        verify(ctx).writeAndFlush(responseCaptor.capture());
+        verify(request, times(2)).getMethod();
+        verify(request).getUri();
+        verify(request).content();
+        verify(requestContent).toString(CharsetUtil.UTF_8);
+
+        verifyNoMoreInteractions(ctx, request, requestContent, requestHeaders, streamAuthenticator, streamManager);
+
+        final FullHttpResponse actual = responseCaptor.getValue();
+        assertEquals("OK", actual.content().toString(StandardCharsets.UTF_8));
+        assertEquals(200, actual.getStatus().code());
+    }
+
+    @Test
+    public void itAllowsPublishRequestsThatAreForwardedForDashLive() throws Exception {
+        when(requestContent.toString(CharsetUtil.UTF_8)).thenReturn("call=connect&app=dash-live");
+
+        when(request.getUri()).thenReturn("/on_publish");
+
+        ArgumentCaptor<FullHttpResponse> responseCaptor = ArgumentCaptor.forClass(FullHttpResponse.class);
+
+        this.underTest.channelRead(ctx, request);
+
+        verify(ctx).writeAndFlush(responseCaptor.capture());
+        verify(request, times(2)).getMethod();
+        verify(request).getUri();
+        verify(request).content();
+        verify(requestContent).toString(CharsetUtil.UTF_8);
+
+        verifyNoMoreInteractions(ctx, request, requestContent, requestHeaders, streamAuthenticator, streamManager);
+
+        final FullHttpResponse actual = responseCaptor.getValue();
+        assertEquals("OK", actual.content().toString(StandardCharsets.UTF_8));
+        assertEquals(200, actual.getStatus().code());
     }
 
     @Test

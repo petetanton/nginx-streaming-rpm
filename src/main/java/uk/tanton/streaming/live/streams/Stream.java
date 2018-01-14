@@ -4,19 +4,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Stream {
-// app=app
-// flashver=Wirecast/FM%201.0%20(compatible%3B%20MS
-// swfurl=
-// tcurl=rtmp://54.171.130.111:1935/app
-// pageurl=
-// addr=82.9.169.215
-// clientid=1
-// call=publish
-// name=wirecastTest
-// type=LIVE
-// user=123
-// password=2323
-
     private final String application;
     private final String name;
     private final String user;

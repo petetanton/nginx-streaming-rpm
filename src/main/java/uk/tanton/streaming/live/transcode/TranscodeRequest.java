@@ -4,10 +4,10 @@ public class TranscodeRequest {
 
     private final String srcUrl;
     private final TranscodeSettings transcode;
-    private final String account;
+    private final int account;
     private final String streamName;
 
-    public TranscodeRequest(String srcUrl, TranscodeSettings transcode, String account, String streamName) {
+    public TranscodeRequest(String srcUrl, TranscodeSettings transcode, int account, String streamName) {
         this.srcUrl = srcUrl;
         this.transcode = transcode;
         this.account = account;
@@ -22,7 +22,7 @@ public class TranscodeRequest {
         return transcode;
     }
 
-    public String getAccount() {
+    public int getAccount() {
         return account;
     }
 
