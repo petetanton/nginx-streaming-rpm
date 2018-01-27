@@ -21,6 +21,7 @@ import uk.tanton.streaming.live.exception.StreamException;
 import uk.tanton.streaming.live.managment.StreamManager;
 import uk.tanton.streaming.live.streams.Stream;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
@@ -30,10 +31,12 @@ public class HttpHandler extends ChannelInboundHandlerAdapter {
 
     private final StreamAuthenticator streamAuthenticator;
     private final StreamManager streamManager;
+    private final ProxyClient proxyClient;
 
-    public HttpHandler(final StreamAuthenticator streamAuthenticator, final StreamManager streamManager) {
+    public HttpHandler(final StreamAuthenticator streamAuthenticator, final StreamManager streamManager, ProxyClient proxyClient) {
         this.streamAuthenticator = streamAuthenticator;
         this.streamManager = streamManager;
+        this.proxyClient = proxyClient;
     }
 
     @Override
@@ -43,7 +46,17 @@ public class HttpHandler extends ChannelInboundHandlerAdapter {
 
 
             try {
-                ctx.writeAndFlush(parseRequestAndCreateResponse(request));
+                FullHttpResponse response;
+                final String uri = request.getUri();
+                if (uri.endsWith(".m4v") || uri.endsWith(".m4a")) {
+                    response = redirectToMainNginx(uri);
+                } else if (uri.endsWith(".mpd")) {
+                     response = getManifest(request);
+                } else {
+                    response = parseRequestAndCreateResponse(request);
+                }
+
+                ctx.writeAndFlush(response);
             } catch (NoSuchPublisherException | NoSuchAccountException | NoSuchStreamException e) {
                 LOG.error("Error caught in handler", e);
                 ctx.writeAndFlush(buildDefaultResponse(HttpResponseStatus.CONFLICT, e.getMessage()));
@@ -51,6 +64,20 @@ public class HttpHandler extends ChannelInboundHandlerAdapter {
         } else {
             super.channelRead(ctx, msg);
         }
+    }
+
+    private FullHttpResponse redirectToMainNginx(String uri) {
+        final String msg = "Redirected";
+        final DefaultFullHttpResponse response = new DefaultFullHttpResponse(
+                HttpVersion.HTTP_1_1,
+                HttpResponseStatus.FOUND,
+                copiedBuffer(msg.getBytes())
+        );
+
+        response.headers().add(HttpHeaders.Names.LOCATION, "http://localhost:8080" + uri);
+        response.headers().add(HttpHeaders.Names.CONTENT_LENGTH, msg.length());
+
+        return response;
     }
 
     private FullHttpResponse parseRequestAndCreateResponse(final FullHttpRequest request) throws NoSuchPublisherException, NoSuchAccountException, NoSuchStreamException {
@@ -77,6 +104,17 @@ public class HttpHandler extends ChannelInboundHandlerAdapter {
         }
 
         return buildDefaultResponse(HttpResponseStatus.BAD_REQUEST, "No request body was sent");
+    }
+
+    private FullHttpResponse getManifest(FullHttpRequest request) {
+        try {
+            final String uri = "http://localhost:8080" + request.getUri();
+            LOG.info("Proxying to {}", uri);
+            return proxyClient.proxyRequest(uri);
+        } catch (IOException e) {
+            LOG.error(e);
+            return buildDefaultResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
     @Override

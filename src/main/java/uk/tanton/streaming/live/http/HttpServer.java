@@ -21,11 +21,13 @@ public class HttpServer {
     private final EventLoopGroup slaveGroup;
     private final StreamAuthenticator streamAuthenticator;
     private final StreamManager streamManager;
+    private final ProxyClient proxyClient;
 
     private ChannelFuture channel;
 
-    public HttpServer(final StreamAuthenticator streamAuthenticator, final StreamManager streamManager) {
+    public HttpServer(final StreamAuthenticator streamAuthenticator, final StreamManager streamManager, ProxyClient proxyClient) {
         this.streamAuthenticator = streamAuthenticator;
+        this.proxyClient = proxyClient;
         this.masterGroup = new NioEventLoopGroup();
         this.slaveGroup = new NioEventLoopGroup();
         this.streamManager = streamManager;
@@ -47,7 +49,7 @@ public class HttpServer {
                     protected void initChannel(final SocketChannel sc) throws Exception {
                         sc.pipeline().addLast("codec", new HttpServerCodec());
                         sc.pipeline().addLast("agg", new HttpObjectAggregator(512 * 1024));
-                        sc.pipeline().addLast("request", new HttpHandler(streamAuthenticator, streamManager));
+                        sc.pipeline().addLast("request", new HttpHandler(streamAuthenticator, streamManager, proxyClient));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)

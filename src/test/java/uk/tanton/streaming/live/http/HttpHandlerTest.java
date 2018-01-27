@@ -38,10 +38,11 @@ public class HttpHandlerTest {
     @Mock private HttpHeaders requestHeaders;
     @Mock private StreamAuthenticator streamAuthenticator;
     @Mock private StreamManager streamManager;
+    @Mock private ProxyClient proxyClient;
 
     @Before
     public void setUp() throws Exception {
-        this.underTest = new HttpHandler(streamAuthenticator, streamManager);
+        this.underTest = new HttpHandler(streamAuthenticator, streamManager, proxyClient);
         when(request.content()).thenReturn(requestContent);
         when(request.headers()).thenReturn(requestHeaders);
         when(request.getMethod()).thenReturn(HttpMethod.POST);
