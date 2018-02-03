@@ -28,7 +28,7 @@ public class ProxyClient {
         this.httpClient = httpClient;
     }
 
-    public DefaultFullHttpResponse proxyRequest(String uri) throws IOException {
+    public DefaultFullHttpResponse proxyManifestRequest(String uri) throws IOException {
         final CloseableHttpResponse response = httpClient.execute(new HttpGet(uri));
 
 
@@ -57,10 +57,9 @@ public class ProxyClient {
 
         proxyResponse.headers().add(CONTENT_LENGTH, responseString.length());
         proxyResponse.headers().add(CONTENT_TYPE, response.getFirstHeader(CONTENT_TYPE).getValue());
-
+        proxyResponse.headers().add("Access-Control-Allow-Origin", "*");
 
         return proxyResponse;
-
     }
 
     private static String replaceAttribute(String line, String key, String newValue) {

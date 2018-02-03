@@ -1,6 +1,7 @@
 package uk.tanton.streaming.live.modules;
 
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsync;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClientBuilder;
@@ -34,7 +35,7 @@ public class AwsModules {
     AmazonDynamoDBAsync provideDynamoClient() {
         return AmazonDynamoDBAsyncClientBuilder.standard()
                 .withRegion(Regions.EU_WEST_1)
-                .withCredentials(new ProfileCredentialsProvider("pete-work"))
+                .withCredentials(getCredentialsProvider())
                 .build();
     }
 
@@ -51,8 +52,18 @@ public class AwsModules {
     public AmazonSQS provideSQSClient() {
         return AmazonSQSClientBuilder.standard()
                 .withRegion(Regions.EU_WEST_1)
-                .withCredentials(new ProfileCredentialsProvider("pete-work"))
+                .withCredentials(getCredentialsProvider())
                 .build();
+    }
+
+    private AWSCredentialsProvider getCredentialsProvider() {
+
+        return new DefaultAWSCredentialsProviderChain();
+//        EnvironmentVariableCredentialsProvider environment = new EnvironmentVariableCredentialsProvider();
+//        if (StringUtils.isNullOrEmpty(environment.getCredentials().getAWSAccessKeyId())) {
+//            return new ProfileCredentialsProvider("pete-work");
+//        } else {
+//        }
     }
 
 

@@ -8,6 +8,7 @@ import uk.tanton.streaming.live.modules.AwsModules;
 import uk.tanton.streaming.live.modules.HttpModule;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 @Component(modules = {AwsModules.class, HttpModule.class})
@@ -20,11 +21,13 @@ interface MainExecComponent {
 public class Main {
     private static final Logger LOG = LogManager.getLogger(Main.class);
 
-    private final HttpServer httpServer;
+    private final HttpServer authServer;
+    private final HttpServer clientServer;
 
     @Inject
-    public Main(final HttpServer httpServer) {
-        this.httpServer = httpServer;
+    public Main(@Named("auth") HttpServer authServer, @Named("client") HttpServer clientServer) {
+        this.authServer = authServer;
+        this.clientServer = clientServer;
     }
 
     public static void main(String[] args) throws Exception {
@@ -45,7 +48,8 @@ public class Main {
     }
 
     void start() throws InterruptedException {
-        httpServer.start();
+        authServer.start();
+        clientServer.start();
     }
 
 }

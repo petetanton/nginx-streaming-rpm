@@ -110,7 +110,7 @@ public class HttpHandler extends ChannelInboundHandlerAdapter {
         try {
             final String uri = "http://localhost:8080" + request.getUri();
             LOG.info("Proxying to {}", uri);
-            return proxyClient.proxyRequest(uri);
+            return proxyClient.proxyManifestRequest(uri);
         } catch (IOException e) {
             LOG.error(e);
             return buildDefaultResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage());
