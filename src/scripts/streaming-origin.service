@@ -3,6 +3,6 @@ Description=Streaming Origin working with Nginx
 [Service]
 ExecStart=/opt/streaming-origin/run-streaming-origin.sh
 Type=simple
-User=centos
+User=root
 [Install]
 WantedBy=multi-user.target nginx.target
