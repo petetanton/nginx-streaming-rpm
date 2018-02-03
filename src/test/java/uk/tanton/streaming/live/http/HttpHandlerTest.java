@@ -48,6 +48,7 @@ public class HttpHandlerTest {
         when(request.getMethod()).thenReturn(HttpMethod.POST);
         when(requestHeaders.get(CONNECTION_ENTITY)).thenReturn(null);
         when(streamAuthenticator.isAuthorised(any(Stream.class))).thenReturn(true);
+        when(request.getUri()).thenReturn("");
     }
 
     @Test
@@ -62,7 +63,7 @@ public class HttpHandlerTest {
 
         verify(ctx).writeAndFlush(responseCaptor.capture());
         verify(request, times(2)).getMethod();
-        verify(request).getUri();
+        verify(request, times(2)).getUri();
         verify(request).content();
         verify(requestContent).toString(CharsetUtil.UTF_8);
         verify(streamAuthenticator).isAuthorised(streamCaptor.capture());
@@ -87,7 +88,7 @@ public class HttpHandlerTest {
 
         verify(ctx).writeAndFlush(responseCaptor.capture());
         verify(request, times(2)).getMethod();
-        verify(request).getUri();
+        verify(request, times(2)).getUri();
         verify(request).content();
         verify(requestContent).toString(CharsetUtil.UTF_8);
         verify(streamAuthenticator).isAuthorised(streamCaptor.capture());
@@ -113,7 +114,7 @@ public class HttpHandlerTest {
 
         verify(ctx).writeAndFlush(responseCaptor.capture());
         verify(request, times(2)).getMethod();
-        verify(request, times(1)).getUri();
+        verify(request, times(2)).getUri();
         verify(request).content();
         verify(requestContent).toString(CharsetUtil.UTF_8);
         verify(streamAuthenticator).isAuthorised(streamCaptor.capture());
@@ -143,7 +144,7 @@ public class HttpHandlerTest {
         this.underTest.channelRead(ctx, request);
 
         verify(request, times(2)).getMethod();
-        verify(request, times(1)).getUri();
+        verify(request, times(2)).getUri();
         verify(ctx).writeAndFlush(responseCaptor.capture());
 
         final FullHttpResponse actual = responseCaptor.getValue();
@@ -168,7 +169,7 @@ public class HttpHandlerTest {
         this.underTest.channelRead(ctx, request);
 
         verify(request, times(2)).getMethod();
-        verify(request, times(1)).getUri();
+        verify(request, times(2)).getUri();
         verify(ctx).writeAndFlush(responseCaptor.capture());
 
         final FullHttpResponse actual = responseCaptor.getValue();
@@ -193,7 +194,7 @@ public class HttpHandlerTest {
 
         verify(ctx).writeAndFlush(responseCaptor.capture());
         verify(request, times(2)).getMethod();
-        verify(request).getUri();
+        verify(request, times(2)).getUri();
         verify(request).content();
         verify(requestContent).toString(CharsetUtil.UTF_8);
 
@@ -216,7 +217,7 @@ public class HttpHandlerTest {
 
         verify(ctx).writeAndFlush(responseCaptor.capture());
         verify(request, times(2)).getMethod();
-        verify(request).getUri();
+        verify(request, times(2)).getUri();
         verify(request).content();
         verify(requestContent).toString(CharsetUtil.UTF_8);
 
@@ -281,7 +282,7 @@ public class HttpHandlerTest {
         this.underTest.channelRead(ctx, request);
 
         verify(request, times(2)).getMethod();
-        verify(request).getUri();
+        verify(request, times(2)).getUri();
         verify(ctx).writeAndFlush(responseCaptor.capture());
 
         final FullHttpResponse actual = responseCaptor.getValue();
